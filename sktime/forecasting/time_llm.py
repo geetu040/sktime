@@ -86,6 +86,7 @@ class TimeLLMForecaster(BaseForecaster):
         "requires-fh-in-fit": True,
         # testing configuration
         # ---------------------
+        # dummy change to trigger CI
         "tests:vm": True,
         "tests:libs": ["sktime.libs.time_llm"],
     }
