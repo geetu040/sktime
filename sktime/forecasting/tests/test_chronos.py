@@ -1,6 +1,7 @@
 """Regression tests for the Chronos and Chronos-Bolt forecaster."""
 
 import numpy as np
+import pandas as pd
 import pytest
 from skbase.utils.dependencies import _check_estimator_deps, _check_soft_dependencies
 
@@ -84,3 +85,21 @@ def test_chronos_airline_predictions_match_source_reference(
         rtol=1e-5,
         atol=1e-4,
     )
+
+
+@pytest.mark.skipif(
+    not _check_estimator_deps(ChronosForecaster, severity="none"),
+    reason="run test only if ChronosForecaster soft dependencies are present",
+)
+def test_chronos_bolt_predicts_beyond_native_horizon():
+    """Chronos-Bolt unrolls forecasts when fh exceeds native prediction length 64."""
+    y = pd.Series(range(128), dtype=float)
+    fh = np.arange(1, 66)  # 65 > native horizon 64
+    forecaster = ChronosForecaster(
+        "amazon/chronos-bolt-tiny",
+        config={"device_map": "cpu", "torch_dtype": torch.float32},
+    )
+
+    y_pred = forecaster.fit(y, fh=fh).predict()
+
+    assert len(y_pred) == len(fh)
