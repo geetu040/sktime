@@ -675,6 +675,10 @@ class ChronosBoltPipeline:
     model: ChronosBoltModelForForecasting
     default_context_length: int = 2048
 
+    @property
+    def quantiles(self) -> list[float]:
+        return self.model.config.chronos_config["quantiles"]
+
     def _prepare_and_validate_context(self, context):
         if isinstance(context, list):
             context = left_pad_and_stack_1D(context)
